@@ -1,8 +1,10 @@
 package it.polito.tdp.extflightdelays;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Airport;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,10 +30,10 @@ public class FXMLController {
     private TextField compagnieMinimo; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoPartenza"
-    private ComboBox<?> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoDestinazione"
-    private ComboBox<?> cmbBoxAeroportoDestinazione; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoDestinazione; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAnalizza"
     private Button btnAnalizza; // Value injected by FXMLLoader
@@ -42,11 +44,35 @@ public class FXMLController {
     @FXML
     void doAnalizzaAeroporti(ActionEvent event) {
 
+    	int x;
+    	try {
+    		x=Integer.parseInt(compagnieMinimo.getText());
+    	}catch(NumberFormatException e) {
+    		txtResult.setText("Inserisci un numero");
+    		return;
+    	}
+    	this.model.creaGrafo(x);
+    	
+    	cmbBoxAeroportoPartenza.getItems().addAll(model.getVertici());
+    	cmbBoxAeroportoDestinazione.getItems().addAll(model.getVertici());
     }
 
     @FXML
     void doTestConnessione(ActionEvent event) {
-
+    	txtResult.clear();
+    	if(cmbBoxAeroportoPartenza.getValue() == null ||
+    			cmbBoxAeroportoDestinazione.getValue() == null) {
+    		txtResult.appendText("Seleziona i due aeroporti!");
+    		return ;
+    	}
+    	
+    	List<Airport> percorso = this.model.getPercorso(cmbBoxAeroportoPartenza.getValue(), cmbBoxAeroportoDestinazione.getValue());
+    	
+    	if(percorso == null) {
+    		txtResult.appendText("I due aeroporti non sono collegati");
+    	} else {
+    		txtResult.appendText(percorso.toString());
+    	}
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
